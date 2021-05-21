@@ -1,51 +1,7 @@
-<div style="display: flex;justify-content: center;text-align:center">
-        <div style="
-        display: inline-block;
-        width: 200px;height: 200px;
-        background: linear-gradient(224.69deg, #43C6AC 0%, #1B5286 159.27%);
-        box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.18), -4px -4px 12px rgba(255, 255, 255, 0.26);
-        border-radius: 14px;">
-            <div style="
-            font-family: sans-serif;
-            font-weight: 800;
-            font-size: 110px;
-            height:110px;
-			line-height:110px;
-            position: relative;
-            right: -10px;
-            bottom: -70px;
-            color: #ffffffCC;">
-                RS
-            </div>
-        </div>
-        <p style="
-        font-size: 90px;
-        font-weight: 300;
-        line-height: 90px;
-        height: 90px;
-        margin: 85px 0 0 30px;
-        background: linear-gradient(267.22deg, #43C6AC 21.2%, #1B5286 73.02%);
-        color: transparent;
-        -webkit-background-clip: text;
-        box-decoration-break: clone;
-        ">RikaScript</p>
-    </div>
+![logo](Logo.png)
 
+![title](./title.png)
 
-
-<center style="font-size:220%;font-weight:100;">轻量、简洁、高扩展</center>
-
-
-
-<center>基于 C# 反射特性的动态脚本语言</center>
-
-
-
-<center style="color:#222">
-	<span style="margin:12px;background:#CCC6;padding:2px 10px;border-left: black solid 4px">MIT</span>
-    <span style="margin:12px;background:#CCC6;padding:2px 10px;border-left: black solid 4px">C#</span>
-    <span style="margin:12px;background:#CCC6;padding:2px 10px;border-left: black solid 4px">Unity</span>
-</center>
 
 
 
