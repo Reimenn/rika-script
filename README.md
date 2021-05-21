@@ -1,6 +1,6 @@
 ![logo](Logo.png)
 
-![title](./title.png)
+![title](title.png)
 
 
 
