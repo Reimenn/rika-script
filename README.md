@@ -1,5 +1,7 @@
 ![logo](Logo.png)
 
+
+
 ![Title](Title.png)
 
 
@@ -179,7 +181,7 @@ Engine 对 Runtime 进行一些包装，实现了复杂的语法，可以完整�
 
 AsyncEngine 继承自 Engine ，实现了异步执行，让 RikaScript 不干扰主线程任务。
 
-### 类库
+### 扩展类库
 
 RikaScript 的类库都要继承自 `ScriptLibBase` 类，这个父类会缓存反射获取的方法来提高运行速度，同时对外暴露一些统一的方法，顺便强制每一个类库都重写 help 方法来让使用者获取帮助。
 
@@ -187,7 +189,7 @@ ScriptLibBase 有个 LibName 关键字来设定类库的默认别名，有个可
 
 RikaScript 导入类库时，不论是通过在C#中AddLib还是 RikaScript 中 import ，实质上都是实例化了一个类库对象，因为可以通过 imprt 时指定别名来同时引入多个相同的类库。
 
-基于 ScriptLibBase 扩展自己的函数时，需要注意函数的返回值和参数类型必须都是 object，同名函数重载只能通过不同参数数量来实现，并且参数数量最大不能超过4个。
+基于 ScriptLibBase 扩展自己的函数时，对 RikaScript 开放的函数的函数名必须用小写字母或下划线开头，否则无法被 RikaScript 直接调用，需要注意 RikaScript 可直接调用的函数的返回值和参数类型必须都是 object，因此这些函数重载只能通过不同参数数量来实现，并且参数数量最大不能超过4个。
 
 现在例如来扩展一个用于Unity的物体控制类
 
@@ -195,8 +197,10 @@ RikaScript 导入类库时，不论是通过在C#中AddLib还是 RikaScript 中 
 namespace RikaScript.Demo{
     class GameObjectLib:ScriptLibBase{
         private GameObject _go;
-        public GameObjectLib(){
-            LibName = "go";
+        
+        public GameObjectLib():base("go","v0.0.1"){
+            Info.AddInfo("set_go(name)","根据一个名字获取GameObject")
+                .AddInfo("move(dir)","根据一个向量移动物体")
         }
 
         public void set_go(object goName){
@@ -205,10 +209,6 @@ namespace RikaScript.Demo{
 
         public void move(object dir){
             _go.transform.Translate((Vector3)dir);
-        }
-
-        protected override void help(){
-            Runtime.Logger.Print("帮助内容.......")
         }
     }
 }
@@ -264,6 +264,8 @@ var rs = new Engine(new UnityLogger());
 
 工具类是 `ScriptTools`，可以查看源码获得帮助
 
+在扩展类库开发中，把 object 类型数据转换成基本数据类型的方法就写在了这个工具里
+
 ## RikaScript 语法总览
 
 
@@ -272,7 +274,7 @@ var rs = new Engine(new UnityLogger());
 |func *name* {|开始定义名为 name 的方法|
 |}|结束定义方法|
 |call *func*|执行一个方法|
-|if @*var* return|根据一个变量，判断是否停止当前方法|
+|if @*var* return|根据一个变量，判断是否停止当前方法或文件|
 |if @*var* *func*|根据一个变量，判断是否执行一个方法|
 |while @*var* *func*|根据一个变量，判断是否反复执行一个方法|
 |exec *path*|执行一个 RikaScript 文件|

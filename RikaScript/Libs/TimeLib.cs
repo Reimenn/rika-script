@@ -9,9 +9,13 @@ namespace RikaScript.Libs
     {
         private Dictionary<string, Stopwatch> _watchs = new Dictionary<string, Stopwatch>();
 
-        public TimeLib()
+        public TimeLib() : base("time", "v0.1.0")
         {
-            LibName = "time";
+            Info.SetPreface("RikaScript 时间类库")
+                .AddHelp("start_watch(name)", "开始一个定时器计时")
+                .AddHelp("end_watch(name)", "结束一个定时器并返回结果")
+                .AddHelp("end_watch_info(name)", "结束一个定时器计时并显示")
+                .SetEnding("这几个方法不会返回任何内容，只需要根据 name 参数确定定时器即可");
         }
 
         public object start_watch(object name)
@@ -40,16 +44,6 @@ namespace RikaScript.Libs
         protected override bool OtherCall(string name, object[] args, out object res)
         {
             throw new NotFoundMethodException(MethodName.ToString(name, args.Length));
-        }
-
-        protected override void help()
-        {
-            Runtime.Logger.Print(message:
-                "TimeLib:time - RikaScript 时间类库\n" +
-                "\t start_watch(name) - 开始一个定时器计时\n" +
-                "\t end_watch(name) - 结束一个定时器并返回结果\n" +
-                "\t end_watch_info(name) - 结束一个定时器计时并显示\n"
-            );
         }
     }
 }

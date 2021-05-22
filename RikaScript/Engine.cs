@@ -16,16 +16,19 @@ namespace RikaScript
     public class Engine
     {
         /// <summary>
+        /// 所用运行时
+        /// </summary>
+        public readonly Runtime Runtime;
+
+        /// <summary>
         /// 方法列表，存放的是方法名和内容代码
         /// </summary>
         private readonly Dictionary<string, string> _funcations = new Dictionary<string, string>();
 
-        private string _lastCode = "";
-
         /// <summary>
-        /// 所用运行时
+        /// 最后一次执行的代码，显示报错的时候用得到
         /// </summary>
-        public Runtime Runtime { get; private set; }
+        private string _lastCode = "";
 
         /// <summary>
         /// 当前构建的方法名
@@ -80,24 +83,8 @@ namespace RikaScript
                             if (!_funcations.ContainsKey(funcName))
                                 throw new NotFoundFuncException(funcName);
 
-                            var funcCode = _funcations[funcName].Split('\n');
-                            foreach (var s1 in funcCode)
-                            {
-                                if (s1.StartsWith("if @") && s1.EndsWith(" return"))
-                                {
-                                    var nMatch = Regex.Match(s1, "if @(.*) return");
-                                    if (!match.Success)
-                                        throw new EngineException("if 格式错误");
-                                    var group = nMatch.Groups;
-                                    var varName = @group[1].Value;
-
-                                    if (Runtime.GetBool(varName))
-                                        break;
-                                    continue;
-                                }
-
-                                this.Execute(s1);
-                            }
+                            var funcCode = _funcations[funcName];
+                            this.Execute(funcCode);
                         }
                         else if (s.StartsWith("exec "))
                         {
@@ -119,6 +106,8 @@ namespace RikaScript
 
                             if (Runtime.GetBool(varName))
                             {
+                                if (funcName == "return")
+                                    break;
                                 this.Execute("call " + funcName);
                             }
                         }
@@ -143,6 +132,10 @@ namespace RikaScript
                             if (strings.Length != 2)
                                 throw new EngineException("echo 格式错误");
                             Runtime.Echo = strings[1] == "true";
+                        }
+                        else if (s.Trim() == "help")
+                        {
+                            Execute("help()");
                         }
                         else
                         {

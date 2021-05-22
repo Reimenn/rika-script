@@ -10,9 +10,22 @@ namespace RikaScript.Libs
     /// </summary>
     public class StandardLib : ScriptLibBase
     {
-        public StandardLib()
+        public StandardLib() : base("std", "v0.1.0")
         {
-            LibName = "std";
+            Info.SetPreface("RikaScript 标准库，包含运行必备的基本方法")
+                .AddHelp("log(message*)", "输出一段 info，支持1到4个参数")
+                .AddHelp("make(value, type*)", "根据 value 返回一个数据，可选通过 type 指定类型")
+                .AddHelp("type(value)", "返回 value 的数据类型")
+                .AddHelp("del(var)", "删除一个变量")
+                .AddHelp("import(libName,asName*)", "导入类库，可选通过 asName 起别名")
+                .AddHelp("set_default_lib(libName)", "设置默认类库")
+                .AddHelp("show_libs()", "显示全部类库")
+                .AddHelp("show_vars()", "显示全部变量")
+                .AddHelp("add|sub|mul|div|mod|pow", "对两个数进行数学计算，其中 add 最多支持 4 个参数")
+                .AddHelp("not|and|or", "bool运算")
+                .AddHelp("equals(obj1,obj2)", "Equals判断")
+                .AddHelp("> >= < <= =", "二元关系运算")
+                .AddHelp("int(num)", "将小数转换成整数");
         }
 
         /// <summary>
@@ -243,26 +256,6 @@ namespace RikaScript.Libs
                     throw new NotFoundMethodException(name);
                     break;
             }
-        }
-
-        protected override void help()
-        {
-            Runtime.Logger.Print(message:
-                "StandardLib:std - RikaScript 标准库，包含运行必备的基本方法\n" +
-                "\t log(message*) - 输出一段 info，支持1到4个参数\n" +
-                "\t make(value, type*) - 根据 value 返回一个数据，可选通过 type 指定类型\n" +
-                "\t type(value) - 返回 value 的数据类型\n" +
-                "\t del(var) - 删除一个变量\n" +
-                "\t import(libName,asName*) - 导入类库，可选通过 asName 起别名\n" +
-                "\t set_default_lib(libName) - 设置默认类库\n" +
-                "\t show_libs() - 显示全部类库\n" +
-                "\t show_vars() - 显示全部变量\n" +
-                "\t add|sub|mul|div|mod|pow - 对两个数进行数学计算，其中 add 最多支持 4 个参数\n" +
-                "\t not|and|or - bool运算\n" +
-                "\t equals(obj1,obj2) - Equals判断\n" +
-                "\t > >= < <= = 二元关系运算\n" +
-                "\t int(num) - 将小数转换成整数"
-            );
         }
     }
 }

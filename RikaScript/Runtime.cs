@@ -16,13 +16,39 @@ namespace RikaScript
     /// </summary>
     public class Runtime
     {
+        /// <summary>
+        /// 是否开启回显
+        /// </summary>
         public bool Echo = false;
-        public readonly LoggerBase Logger;
-        public readonly string Delimiter;
 
+        /// <summary>
+        /// 输出用的
+        /// </summary>
+        public readonly LoggerBase Logger;
+
+        /// <summary>
+        /// 字符串的定界符
+        /// </summary>
+        private readonly string _delimiter;
+
+        /// <summary>
+        /// 变量们
+        /// </summary>
         private readonly Dictionary<string, object> _dataMap = new Dictionary<string, object>();
+
+        /// <summary>
+        /// 类库们
+        /// </summary>
         private readonly Dictionary<string, ScriptLibBase> _libs = new Dictionary<string, ScriptLibBase>();
+
+        /// <summary>
+        /// 最后一次执行的代码，显示报错的时候用得到
+        /// </summary>
         private string _lastCode = "";
+
+        /// <summary>
+        /// 默认类库名
+        /// </summary>
         private string _defaultLib = "std";
 
         /// <summary>
@@ -33,7 +59,7 @@ namespace RikaScript
         public Runtime(LoggerBase logger, string delimiter = "\"'")
         {
             this.Logger = logger;
-            this.Delimiter = delimiter;
+            this._delimiter = delimiter;
             AddLib(new StandardLib());
         }
 
@@ -72,7 +98,7 @@ namespace RikaScript
 
                 // 参数处理
                 var argsString = match.Groups[2].ToString();
-                var argsStr = ScriptTools.SplitByDelimiter(argsString, Delimiter, ',');
+                var argsStr = ScriptTools.SplitByDelimiter(argsString, _delimiter, ',');
                 var argsObject = new List<object>();
                 foreach (var arg in argsStr)
                 {
@@ -85,7 +111,7 @@ namespace RikaScript
                     else
                     {
                         // 字符串掐头去尾
-                        argsObject.Add(Delimiter.Contains(arg[0])
+                        argsObject.Add(_delimiter.Contains(arg[0])
                             ? arg.Trim(arg[0])
                             : arg);
                     }

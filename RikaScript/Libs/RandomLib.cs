@@ -6,10 +6,14 @@ namespace RikaScript.Libs
     public class RandomLib : ScriptLibBase
 
     {
-        public RandomLib()
+        public RandomLib() : base("random", "v0.1.0")
         {
-            this.LibName = "random";
+            Info.SetPreface("RikaScript 随机数生成类库")
+                .AddHelp("random()", "获取一个随机小数")
+                .AddHelp("range(start,end)", "获取一个范围内的随机小数");
+
         }
+
         public object random()
         {
             var ran = new Random();
@@ -25,15 +29,6 @@ namespace RikaScript.Libs
         protected override bool OtherCall(string name, object[] args, out object res)
         {
             throw new NotFoundMethodException(name);
-        }
-
-        protected override void help()
-        {
-            Runtime.Logger.Print(message:
-                "RandomLib:random - RikaScript 随机数生成类库\n"+
-                "\t random() - 获取一个随机小数\n" +
-                "\t range(start,end) - 获取一个范围内的随机小数\n"
-                );
         }
     }
 }

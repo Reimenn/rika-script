@@ -13,7 +13,20 @@ namespace RikaScript.Libs
     /// </summary>
     public abstract class ScriptLibBase
     {
-        public string LibName;
+        /// <summary>
+        /// 类库默认别名
+        /// </summary>
+        public readonly string LibName;
+
+        /// <summary>
+        /// 类库版本
+        /// </summary>
+        public readonly string Version;
+
+        /// <summary>
+        /// 类库信息
+        /// </summary>
+        public readonly LibInfo Info;
 
         /// <summary>
         /// 这个类库所在的运行时环境
@@ -25,8 +38,11 @@ namespace RikaScript.Libs
         /// </summary>
         private readonly Dictionary<string, IMethod> _methods = new Dictionary<string, IMethod>();
 
-        protected ScriptLibBase()
+        protected ScriptLibBase(string name, string version)
         {
+            LibName = name;
+            Version = version;
+            Info = new LibInfo(this);
             // 预缓存方法
             var ms = GetType().GetMethods();
             foreach (var m in ms)
@@ -46,13 +62,6 @@ namespace RikaScript.Libs
         /// <returns>是否有返回值</returns>
         public bool Call(string methodName, object[] args, out object res)
         {
-            if (methodName == "help")
-            {
-                help();
-                res = null;
-                return false;
-            }
-
             IMethod method = null;
             var n = MethodName.ToString(methodName, args.Length);
 
@@ -72,6 +81,21 @@ namespace RikaScript.Libs
         /// <summary>
         /// 查看帮助
         /// </summary>
-        protected abstract void help();
+        public object help()
+        {
+            var res = Info.ToString();
+            Runtime.Logger.Print(res);
+            return res;
+        }
+
+        /// <summary>
+        /// 搜索帮助
+        /// </summary>
+        public object help(object str)
+        {
+            var res = Info.SearchInfo(str.String());
+            Runtime.Logger.Print(res);
+            return res;
+        }
     }
 }
