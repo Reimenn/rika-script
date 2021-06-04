@@ -34,14 +34,14 @@ namespace RikaScript.Logger
         /// </summary>
         public void ShowException(System.Exception e, string code)
         {
-            // Error(e);
+            Error(e);
 
             if (e == null)
             {
                 Error("[ 未知错误 ] \n\t异常代码：" + code);
                 return;
             }
-
+            
             switch (e)
             {
                 case RikaScriptException re:

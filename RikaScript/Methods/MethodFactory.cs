@@ -6,7 +6,7 @@ namespace RikaScript.Methods
     /// <summary>
     /// 生产 IMethod 的简单工厂
     /// </summary>
-    public class MethodFactory
+    public static class MethodFactory
     {
         public static IMethod Create(object target, MethodInfo m)
         {

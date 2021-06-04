@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
+using RikaScript.Exception;
 
 namespace RikaScript
 {
@@ -14,18 +16,45 @@ namespace RikaScript
         /// </summary>
         public static double Double(this object obj)
         {
-            if (obj == null) return 0;
-            if (obj is double d) return d;
-            return double.Parse(obj.ToString());
+            switch (obj)
+            {
+                case null:
+                    return 0;
+                case double d:
+                    return d;
+                default:
+                    try
+                    {
+                        return double.Parse(obj.ToString());
+                    }
+                    catch
+                    {
+                        throw new RuntimeException("无法转换成数值类型：" + obj);
+                    }
+            }
         }
 
         /// <summary>
-        /// Object 快速转换成 bool
+        /// Object 快速转换成 bool，null = false，大于零的数为true，其他数为false，bool值直接返回
         /// </summary>
         public static bool Bool(this object obj)
         {
-            if (obj is bool b) return b;
-            return obj.Double() > 0;
+            switch (obj)
+            {
+                case null:
+                    return false;
+                case bool b:
+                    return b;
+                default:
+                    try
+                    {
+                        return obj.Double() > 0;
+                    }
+                    catch (RuntimeException re)
+                    {
+                        return true;
+                    }
+            }
         }
 
         /// <summary>
@@ -34,6 +63,16 @@ namespace RikaScript
         public static string String(this object obj)
         {
             return obj == null ? "" : obj.ToString();
+        }
+
+        /// <summary>
+        /// 给 stringBuilder 用的 pop，获取全部内容并清空
+        /// </summary>
+        public static string Pop(this StringBuilder sb)
+        {
+            var s = sb.ToString();
+            sb.Remove(0, sb.Length);
+            return s;
         }
 
         /// <summary>
@@ -109,5 +148,80 @@ namespace RikaScript
 
             return res.ToArray();
         }
+
+        /// <summary>
+        /// 解析字面值，返回 string、int(默认)、long、float(默认)、double
+        /// </summary>
+        public static object ParseData(string source, Dictionary<string, object> data)
+        {
+            // 判断是否为空，为空返回 null
+            if (source.Length == 0 || source == "null")
+            {
+                return null;
+            }
+
+            switch (source)
+            {
+                case "false":
+                    return false;
+                case "true":
+                    return true;
+            }
+
+            // 判断是否是字符串，长度大于等于2才能是字符串
+            if (source.Length >= 2)
+            {
+                // 两种定界符都可以
+                if (source.StartsWith("'") && source.EndsWith("'"))
+                {
+                    return source.Substring(1, source.Length - 2);
+                }
+
+                // 两种定界符都可以
+                if (source.StartsWith("\"") && source.EndsWith("\""))
+                {
+                    return source.Substring(1, source.Length - 2);
+                }
+            }
+
+            // 判断第一位是不是数字，如果是，则转换成对应的数字类型
+            if (source[0] >= '0' && source[0] <= '9')
+            {
+                // 是否包含小数点，如果包含返回double或float
+                if (source.Contains("."))
+                {
+                    if (source.EndsWith("d") || source.EndsWith("D"))
+                    {
+                        return double.Parse(source);
+                    }
+
+                    return float.Parse(source);
+                }
+
+                // 否则看看是否是long类型
+                if (source.EndsWith("l") || source.EndsWith("L"))
+                {
+                    return long.Parse(source);
+                }
+
+                // 都不对返回int
+                return int.Parse(source);
+            }
+
+            // 最后断定它是个变量
+            if (data.ContainsKey(source))
+            {
+                return data[source];
+            }
+
+            throw new NotFoundVarException(source);
+        }
+    }
+
+    /// <summary>
+    /// 表示左括号的占位符
+    /// </summary>
+    public class InfixStart
+    {
     }
 }

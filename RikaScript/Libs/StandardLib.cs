@@ -1,51 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Remoting;
 using RikaScript.Exception;
+using RikaScript.Libs.Base;
 
 namespace RikaScript.Libs
 {
     /// <summary>
     /// RikaScript 标准库
     /// </summary>
+    [Library("std", "v0.2.0", "RikaScript 标准类库，内部的函数都不能被覆盖")]
     public class StandardLib : ScriptLibBase
     {
-        public StandardLib() : base("std", "v0.1.0")
-        {
-            Info.SetPreface("RikaScript 标准库，包含运行必备的基本方法")
-                .AddHelp("log(message*)", "输出一段 info，支持1到4个参数")
-                .AddHelp("make(value, type*)", "根据 value 返回一个数据，可选通过 type 指定类型")
-                .AddHelp("type(value)", "返回 value 的数据类型")
-                .AddHelp("del(var)", "删除一个变量")
-                .AddHelp("import(libName,asName*)", "导入类库，可选通过 asName 起别名")
-                .AddHelp("set_default_lib(libName)", "设置默认类库")
-                .AddHelp("show_libs()", "显示全部类库")
-                .AddHelp("show_vars()", "显示全部变量")
-                .AddHelp("add|sub|mul|div|mod|pow", "对两个数进行数学计算，其中 add 最多支持 4 个参数")
-                .AddHelp("not|and|or", "bool运算")
-                .AddHelp("equals(obj1,obj2)", "Equals判断")
-                .AddHelp("> >= < <= =", "二元关系运算")
-                .AddHelp("int(num)", "将小数转换成整数");
-        }
-
         /// <summary>
         /// 标准输出
         /// </summary>
+        [Method(Keep = true, Help = "以 INFO 的形式输出一段消息")]
         public void log(object message)
         {
             Runtime.Logger.Info(message);
         }
 
+        [Method(Keep = true, Help = "以 INFO 的形式输出一段消息，多个参数之间直接相连")]
         public void log(object m1, object m2)
         {
             Runtime.Logger.Info(m1.String() + m2.String());
         }
 
+        [Method(Keep = true, Help = "以 INFO 的形式输出一段消息，多个参数之间直接相连")]
         public void log(object m1, object m2, object m3)
         {
             Runtime.Logger.Info(m1.String() + m2.String() + m3.String());
         }
 
+        [Method(Keep = true, Help = "以 INFO 的形式输出一段消息，多个参数之间直接相连")]
         public void log(object m1, object m2, object m3, object m4)
         {
             Runtime.Logger.Info(m1.String() + m2.String() + m3.String() + m4.String());
@@ -54,93 +43,126 @@ namespace RikaScript.Libs
         /// <summary>
         /// 制造数据
         /// </summary>
-        public object make(object val)
+        [Method(Keep = true, Help = "进来什么数据，出去就还是什么数据，这里其实就写了一行return")]
+        public object make(object value)
         {
-            switch (val.ToString())
-            {
-                case "false":
-                    return false;
-                case "true":
-                    return true;
-                default:
-                    return make(val, "double");
-            }
+            return value;
         }
 
-        public object make(object val, object type)
+        [Method(Keep = true, Help = "字符串转换成数值，第一个参数是想要的数据，第二个参数是类型，支持 int long float double，类型不正确返回原有值")]
+        public object make(object value, object type)
         {
-            switch (type.ToString())
+            switch (type.String())
             {
                 case "int":
-                    return int.Parse(val.ToString());
+                    return int.Parse(value.String());
                 case "float":
-                    return float.Parse(val.ToString());
+                    return float.Parse(value.String());
                 case "long":
-                    return long.Parse(val.ToString());
+                    return long.Parse(value.String());
                 case "double":
-                    return double.Parse(val.ToString());
-                case "string":
-                    return val.ToString();
+                    return double.Parse(value.String());
                 default:
-                    return make(val);
+                    return make(value);
             }
         }
 
         /// <summary>
         /// 获取数据类型
         /// </summary>
-        public object type(object val)
+        [Method(Keep = true, Help = "获取数据类型，内部：return val.GetType()")]
+        public object type(object obj)
         {
-            return val.GetType();
+            return obj.GetType();
+        }
+
+        [Method(Keep = true, Help = "用字符串指定变量，给变量赋值，不存在变量则创建")]
+        public void set(object varName, object value)
+        {
+            Runtime.SetValue(varName.String(), value);
+        }
+
+        [Method(Keep = true, Help = "用字符串指定变量，返回某个变量的值，不存在返回默认值")]
+        public object get(object varName, object defaultValue)
+        {
+            try
+            {
+                return Runtime.GetValue<object>(varName.String());
+            }
+            catch
+            {
+                return defaultValue;
+            }
+        }
+
+        [Method(Keep = true, Help = "用字符串指定变量，返回某个变量的值，不存在返回null")]
+        public object get(object varName)
+        {
+            return get(varName, null);
         }
 
         /// <summary>
         /// 根据 变量名 删除一个变量，释放内存
         /// </summary>
-        public void del(object val)
+        [Method(Keep = true, Help = "用字符串指定变量，删除一个变量")]
+        public void del(object varName)
         {
-            var name = val.String();
+            var name = varName.String();
             Runtime.DelValue(name);
+        }
+
+        /// <summary>
+        /// 返回是否存在，bool 类型
+        /// </summary>
+        [Method(Keep = true, Help = "用字符串指定变量，返回是否存在某个变量")]
+        public object exist(object varName)
+        {
+            return Runtime.ExistValue(varName.String());
         }
 
         /// <summary>
         /// 导入类库
         /// </summary>
-        public void import(object name)
+        [Method(Keep = true, Help = "导入类库，填写类库全名（带上 namespace）")]
+        public void import(object libraryFullName)
         {
-            import(name, null);
+            import(libraryFullName, null);
         }
 
-        public void import(object name, object asName)
+        [Method(Keep = true, Help = "导入类库，填写类库全名（带上 namespace），可以用第二个参数给类库起个别名")]
+        public void import(object libraryFullName, object asName)
         {
-            var type = Type.GetType(name.String());
-            if (type == null)
-                throw new RuntimeException("不能导入类库，因为没有找到：" + name);
-            var con = type.GetConstructor(new Type[0]);
-            if (con == null)
-                throw new RuntimeException("不能导入类库，因为没有空构造方法：" + name);
-            var obj = con.Invoke(new object[0]);
-            if (!(obj is ScriptLibBase))
-                throw new RuntimeException("不能导入类库，因为这个类不是 RikaScript 的类库：" + name);
+            // 存在检查
+            var libraryClassType = Type.GetType(libraryFullName.String());
+            if (libraryClassType == null)
+                throw new ImportLibraryException("没有找到：" + libraryFullName);
+            // 构造器检查
+            var constructor = libraryClassType.GetConstructor(new Type[0]);
+            if (constructor == null)
+                throw new ImportLibraryException(libraryFullName + "类库没有空构造方法");
+            // 父类检查
+            if (libraryClassType.BaseType != typeof(ScriptLibBase))
+                throw new ImportLibraryException(libraryFullName + "类不是 RikaScript 类库");
 
-            string asn = null;
-            if (asName.String().Length > 0)
-                asn = asName.String();
+            // 实例化、添加类库
+            var obj = constructor.Invoke(new object[0]);
 
-            Runtime.AddLib((ScriptLibBase) obj, asn);
+            if (string.IsNullOrEmpty(asName.String()))
+                Runtime.AddLib((ScriptLibBase) obj);
+            else
+                Runtime.AddLib((ScriptLibBase) obj, asName.String());
         }
 
-        /// <summary>
-        /// 设置默认类库
-        /// </summary>
-        public void set_default_lib(object name)
+        [Method(Keep = true, Help = "判断是否存在某个类库，以别名为依据")]
+        public object exist_lib(object libraryAlias)
         {
-            Runtime.SetDefaultLib(name.String());
+            return Runtime.GetLibs().Contains(libraryAlias.String());
         }
 
         /// <summary>
         /// 显示全部类库
         /// </summary>
+        [Method(Keep = true, Help = "显示一下全部已经导入的类库")]
         public void show_libs()
         {
             var strings = Runtime.GetLibs();
@@ -151,6 +173,7 @@ namespace RikaScript.Libs
         /// <summary>
         /// 显示全部变量
         /// </summary>
+        [Method(Keep = true, Help = "显示一下全部变量")]
         public void show_vars()
         {
             var strings = Runtime.GetVars();
@@ -158,104 +181,115 @@ namespace RikaScript.Libs
             Runtime.Logger.Info(j);
         }
 
-        // Math
+        [Method(Name = "int", Keep = true, Help = "将小数转换成 int 类型")]
+        public object Int(object number)
+        {
+            return (int) number.Double();
+        }
 
+        [Method(Name = "str", Keep = true, Help = "转换成字符串")]
+        public object Str(object value)
+        {
+            return value.String();
+        }
+
+        [Method(Name = "hash", Keep = true, Help = "获取 hash 码")]
+        public object hash(object value)
+        {
+            return value.GetHashCode();
+        }
+
+        // 数学
+        [Method(Name = "+", Priority = 10, Keep = true)]
         public object add(object a, object b)
         {
             return a.Double() + b.Double();
         }
 
-        public object add(object a, object b, object c)
-        {
-            return a.Double() + b.Double() + c.Double();
-        }
-
-        public object add(object a, object b, object c, object d)
-        {
-            return a.Double() + b.Double() + c.Double() + d.Double();
-        }
-
+        [Method(Name = "-", Priority = 10, Keep = true)]
         public object sub(object a, object b)
         {
             return a.Double() - b.Double();
         }
 
+        [Method(Name = "*", Priority = 100, Keep = true)]
         public object mul(object a, object b)
         {
             return a.Double() * b.Double();
         }
 
+        [Method(Name = "/", Priority = 100, Keep = true)]
         public object div(object a, object b)
         {
             return a.Double() / b.Double();
         }
 
+        [Method(Name = "%", Priority = 10, Keep = true, Help = "求余")]
         public object mod(object a, object b)
         {
             return a.Double() % b.Double();
         }
 
+        [Method(Name = "**", Priority = 110, Keep = true, Help = "乘方操作，左值是底数，右值为指数")]
         public object pow(object a, object b)
         {
             return Math.Pow(a.Double(), b.Double());
         }
 
-        // Bool
-
-        public object not(object a)
+        // 关系
+        [Method(Name = ">", Priority = 5, Keep = true)]
+        public object gt(object a, object b)
         {
-            if (a is bool ab)
-                return !bool.Parse(ab.ToString());
-            else
-                return !(a.Double() > 0);
+            return a.Double() > b.Double();
         }
 
+        [Method(Name = "<", Priority = 5, Keep = true)]
+        public object lt(object a, object b)
+        {
+            return a.Double() < b.Double();
+        }
+
+        [Method(Name = ">=", Priority = 5, Keep = true)]
+        public object ge(object a, object b)
+        {
+            return a.Double() >= b.Double();
+        }
+
+        [Method(Name = "<=", Priority = 5, Keep = true)]
+        public object le(object a, object b)
+        {
+            return a.Double() <= b.Double();
+        }
+
+        [Method(Name = "==", Priority = 3, Keep = true)]
+        public object eq(object a, object b)
+        {
+            return a.String() == b.String();
+        }
+
+        [Method(Name = "!=", Priority = 3, Keep = true)]
+        public object ne(object a, object b)
+        {
+            return a.String() != b.String();
+        }
+
+        // Bool
+        [Method(Keep = true)]
+        public object not(object a)
+        {
+            return !a.Bool();
+        }
+
+        [Method(Priority = 9, Keep = true)]
         public object and(object a, object b)
         {
             return a.Bool() && b.Bool();
         }
 
+        [Method(Priority = 8, Keep = true)]
         public object or(object a, object b)
         {
             return a.Bool() || b.Bool();
-        }
-
-        // object
-
-        public object equals(object a, object b)
-        {
-            return a.Equals(b);
-        }
-
-        protected override bool OtherCall(string name, object[] args, out object res)
-        {
-            switch (name)
-            {
-                case "int":
-                    res = (int) (args[0].Double());
-                    return true;
-                case "<":
-                    res = args[0].Double() < args[1].Double();
-                    return true;
-                case "<=":
-                    res = args[0].Double() <= args[1].Double();
-                    return true;
-                case ">":
-                    res = args[0].Double() > args[1].Double();
-                    return true;
-                case ">=":
-                    res = args[0].Double() >= args[1].Double();
-                    return true;
-                case "=":
-                    res = args[0].Double() == args[1].Double();
-                    return true;
-                case "!=":
-                    res = args[0].Double() != args[1].Double();
-                    return true;
-                default:
-                    throw new NotFoundMethodException(name);
-                    break;
-            }
         }
     }
 }
