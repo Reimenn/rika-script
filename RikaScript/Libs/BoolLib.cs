@@ -4,7 +4,7 @@ using RikaScript.Libs.Base;
 
 namespace RikaScript.Libs
 {
-    [Library("bool", "v0.1.0")]
+    [Library(Name = "bool",Version = "v0.1.0")]
     public class BoolLib : ScriptLibBase
     {
         [Method(Help = "计算一串bool公式")]

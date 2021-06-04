@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using RikaScript.Exception;
 
@@ -23,7 +24,30 @@ namespace RikaScript
                 default:
                     try
                     {
-                        return double.Parse(obj.ToString());
+                        return double.Parse(obj.String());
+                    }
+                    catch
+                    {
+                        throw new RuntimeException("无法转换成数值类型：" + obj);
+                    }
+            }
+        }
+
+        /// <summary>
+        /// Object 快速转换成 long
+        /// </summary>
+        public static long Long(this object obj)
+        {
+            switch (obj)
+            {
+                case null:
+                    return 0;
+                case long i:
+                    return i;
+                default:
+                    try
+                    {
+                        return long.Parse(obj.String());
                     }
                     catch
                     {
@@ -71,6 +95,30 @@ namespace RikaScript
             var s = sb.ToString();
             sb.Remove(0, sb.Length);
             return s;
+        }
+
+        /// <summary>
+        /// 只要有一个数是小数，就返回true
+        /// </summary>
+        public static bool AnyIsDecimal(object a, object b)
+        {
+            return a.IsDecimal() || b.IsDecimal();
+        }
+
+        /// <summary>
+        /// 是否是小数
+        /// </summary>
+        public static bool IsDecimal(this object obj)
+        {
+            return obj is double || obj is float;
+        }
+
+        /// <summary>
+        /// 是否是整数
+        /// </summary>
+        public static bool IsInteger(this object obj)
+        {
+            return obj is long || obj is int || obj is short || obj is byte;
         }
 
         /// <summary>
@@ -185,25 +233,18 @@ namespace RikaScript
             // 判断第一位是不是数字，如果是，则转换成对应的数字类型
             if (source[0] >= '0' && source[0] <= '9')
             {
-                // 是否包含小数点，如果包含返回double或float
+                // if (source.EndsWith("d") || source.EndsWith("D"))
+                //     return double.Parse(source.Substring(0, source.Length - 1));
+                //
+                // if (source.EndsWith("f") || source.EndsWith("F"))
+                //     return float.Parse(source.Substring(0, source.Length - 1));
+                //
+                // if (source.EndsWith("l") || source.EndsWith("L"))
+                //     return long.Parse(source.Substring(0, source.Length - 1));
+
                 if (source.Contains("."))
-                {
-                    if (source.EndsWith("d") || source.EndsWith("D"))
-                    {
-                        return double.Parse(source);
-                    }
-
-                    return float.Parse(source);
-                }
-
-                // 否则看看是否是long类型
-                if (source.EndsWith("l") || source.EndsWith("L"))
-                {
-                    return long.Parse(source);
-                }
-
-                // 都不对返回int
-                return int.Parse(source);
+                    return double.Parse(source);
+                return long.Parse(source);
             }
 
             // 最后断定它是个变量

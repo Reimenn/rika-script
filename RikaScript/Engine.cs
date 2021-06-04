@@ -99,7 +99,7 @@ namespace RikaScript
                                 throw new EngineException("if 格式错误");
                             var group = match.Groups;
                             var varName = group[1].Value;
-                            var funcName = group[2].Value;
+                            var funcName = group[2].Value.Trim();
                             var value = Runtime.Execute(varName).Bool();
                             if (funcName == "{")
                             {
@@ -107,6 +107,7 @@ namespace RikaScript
                                 _currentBuildingFuncType = value ? "if" : "ignore";
                                 _currentDepth++;
                                 _funcBuilder = new StringBuilder();
+                                
                             }
                             else if (value)
                             {

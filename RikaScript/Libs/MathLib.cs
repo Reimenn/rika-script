@@ -6,7 +6,7 @@ using RikaScript.Libs.Base;
 
 namespace RikaScript.Libs
 {
-    [Library("math", "v0.1.0")]
+    [Library(Name= "math",Version = "v0.1.0")]
     public class MathLib : ScriptLibBase
     {
         private Dictionary<string, int> map = new Dictionary<string, int>();

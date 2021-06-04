@@ -10,7 +10,7 @@ namespace RikaScript.Libs
     /// <summary>
     /// RikaScript 标准库
     /// </summary>
-    [Library("std", "v0.2.0", "RikaScript 标准类库，内部的函数都不能被覆盖")]
+    [Library(Name = "std", Version = "v0.2.0", Help = "RikaScript 标准类库，内部的函数都不能被覆盖")]
     public class StandardLib : ScriptLibBase
     {
         /// <summary>
@@ -181,10 +181,16 @@ namespace RikaScript.Libs
             Runtime.Logger.Info(j);
         }
 
-        [Method(Name = "int", Keep = true, Help = "将小数转换成 int 类型")]
+        [Method(Name = "int", Keep = true, Help = "将小数转换成整数")]
         public object Int(object number)
         {
             return (int) number.Double();
+        }
+
+        [Method(Name = "float", Keep = true, Help = "将整数转换成小数")]
+        public object Float(object number)
+        {
+            return number.Double();
         }
 
         [Method(Name = "str", Keep = true, Help = "转换成字符串")]
@@ -203,31 +209,46 @@ namespace RikaScript.Libs
         [Method(Name = "+", Priority = 10, Keep = true)]
         public object add(object a, object b)
         {
-            return a.Double() + b.Double();
+            if (ScriptTools.AnyIsDecimal(a, b))
+                return a.Double() + b.Double();
+            return a.Long() + b.Long();
         }
 
         [Method(Name = "-", Priority = 10, Keep = true)]
         public object sub(object a, object b)
         {
-            return a.Double() - b.Double();
+            if (ScriptTools.AnyIsDecimal(a, b))
+                return a.Double() - b.Double();
+            return a.Long() - b.Long();
         }
 
         [Method(Name = "*", Priority = 100, Keep = true)]
         public object mul(object a, object b)
         {
-            return a.Double() * b.Double();
+            if (ScriptTools.AnyIsDecimal(a, b))
+                return a.Double() * b.Double();
+            return a.Long() * b.Long();
         }
 
         [Method(Name = "/", Priority = 100, Keep = true)]
         public object div(object a, object b)
         {
-            return a.Double() / b.Double();
+            if (ScriptTools.AnyIsDecimal(a, b))
+                return a.Double() / b.Double();
+            return a.Long() / b.Long();
         }
 
         [Method(Name = "%", Priority = 10, Keep = true, Help = "求余")]
         public object mod(object a, object b)
         {
-            return a.Double() % b.Double();
+            if (ScriptTools.AnyIsDecimal(a, b))
+            {
+                if (a.Double() == 0) return 0.0;
+                return a.Double() % b.Double();
+            }
+
+            if (a.Long() == 0) return 0L;
+            return a.Long() % a.Long();
         }
 
         [Method(Name = "**", Priority = 110, Keep = true, Help = "乘方操作，左值是底数，右值为指数")]
@@ -280,13 +301,13 @@ namespace RikaScript.Libs
             return !a.Bool();
         }
 
-        [Method(Priority = 9, Keep = true)]
+        [Method(Priority = 2, Keep = true)]
         public object and(object a, object b)
         {
             return a.Bool() && b.Bool();
         }
 
-        [Method(Priority = 8, Keep = true)]
+        [Method(Priority = 1, Keep = true)]
         public object or(object a, object b)
         {
             return a.Bool() || b.Bool();
