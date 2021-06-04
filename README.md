@@ -10,7 +10,7 @@
 
 ```c#
 var rs = new Engine(new ConsoleLogger());
-rs.Execute("log(Hello, World)");
+rs.Execute("log('Hello, World')");
 ```
 
 运行即可在控制台看到 Hello, World。
