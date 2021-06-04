@@ -4,9 +4,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using RikaScript.Exception;
-using RikaScript.Libs.Base;
 using RikaScript.Logger;
-using FormatException = RikaScript.Exception.FormatException;
 
 namespace RikaScript
 {
