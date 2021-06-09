@@ -1,3 +1,5 @@
+NEW URL [Gitee](https://gitee.com/LrikaM/rika-script)
+
 ![logo](Logo.png)
 
 
