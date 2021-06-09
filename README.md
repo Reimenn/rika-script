@@ -1,4 +1,4 @@
-NEW URL [Gitee](https://gitee.com/LrikaM/rika-script)
+# NEW URL [Gitee](https://gitee.com/LrikaM/rika-script)
 
 ![logo](Logo.png)
 
